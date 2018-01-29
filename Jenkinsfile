@@ -15,14 +15,6 @@ pipeline {
         )
       }
     }
-    stage("setup") {
-      when {
-        branch "master"
-      }
-      steps {
-        sh "docker network create --driver overlay swarm-visualizer || echo 'Network creation failed. It probably already exists.'"
-      }
-    }
     stage("deploy") {
       when {
         branch "master"
@@ -33,7 +25,7 @@ pipeline {
       steps {
         script {
           if (env.swarmVisualizerDomain) {
-            sh "docker stack deploy -c swarm-visualizer.yml swarm-visualizer"
+            sh "docker stack deploy -c stack.yml swarm-visualizer"
           } else {
             sh 'echo "ERROR: env.swarmVisualizerDomain is required." && exit 1'
           }
@@ -53,7 +45,7 @@ pipeline {
     }
     success {
       slackSend(
-        color: "success",
+        color: "good",
         message: "${env.JOB_NAME} succeeded: ${env.RUN_DISPLAY_URL}"
       )
     }
