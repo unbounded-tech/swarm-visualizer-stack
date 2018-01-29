@@ -1,0 +1,33 @@
+version: '3.3'
+
+services:
+
+  main:
+    image: alexellis2/visualizer-arm
+    networks:
+      - proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - com.df.notify=true
+        - com.df.distribute=true
+        - com.df.port=8080
+        - com.df.serviceDomain=${SWARM_VIS_DOMAIN}
+        - com.df.xForwardedProto=true
+        - com.df.alertName=memlimit
+        - com.df.alertIf=@service_mem_limit:0.8
+        - com.df.alertFor=30s
+      resources:
+        reservations:
+          memory: 256M
+        limits:
+          memory: 512M
+
+networks:
+
+  proxy:
+    external: true
